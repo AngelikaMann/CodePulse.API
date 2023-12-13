@@ -16,6 +16,30 @@ namespace CodePulse.API.Controllers
             this.imageRepository = imageRepository;
         }
 
+        //Get: {apibaseurl}/api/Images
+        [HttpGet]
+        public async Task<IActionResult> GetAllImages()
+        {
+            //call image repository to get all images
+            var images = await imageRepository.GetAll();
+            //Convert Domain Model to DTO
+            var response = new List<BlogImageDto>();
+            foreach (var image in images)
+            {
+                response.Add(new BlogImageDto
+                {
+                    Id = image.Id,
+                    Title = image.Title,
+                    FileName = image.FileName,
+                    DateCreated = image.DateCreated,
+                    FileExtension = image.FileExtension,
+                    Url = image.Url
+
+                });
+            }
+            return Ok(response);
+        }
+
         //Post : {apibaseurl}/api/images
         [HttpPost]
 
@@ -40,8 +64,8 @@ namespace CodePulse.API.Controllers
                 {
                     Id = blogImage.Id,
                     Title = blogImage.Title,
-                    FileName = fileName,
-                    DateCreated = DateTime.Now,
+                    FileName = blogImage.FileName,
+                    DateCreated = blogImage.DateCreated,
                     FileExtension = blogImage.FileExtension,
                     Url = blogImage.Url
                 };
@@ -49,6 +73,7 @@ namespace CodePulse.API.Controllers
             }
             return BadRequest(ModelState);
         }
+
         private void ValidateFileUpload(IFormFile file)
         {
             var allowedExtensions = new string[] { ".jpg", ".jpeg", ".png" };
